@@ -3,7 +3,6 @@ package com.udacity.asteroidradar.api
 import com.squareup.picasso.Picasso
 import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.Constants
-import com.udacity.asteroidradar.ImageOfDay
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
@@ -45,10 +44,6 @@ fun parseAsteroidsJsonResult(jsonResult: JSONObject): ArrayList<Asteroid> {
     return asteroidList
 }
 
-//fun parseAsteroidOfDay(jsonResult: JSONObject): ArrayList<ImageOfDay> {
-//    val asteroidPicsso = Picasso.get().load(jsonResult.getJSONObject("url"))
-//}
-
 private fun getNextSevenDaysFormattedDates(): ArrayList<String> {
     val formattedDateList = ArrayList<String>()
 
@@ -62,3 +57,4 @@ private fun getNextSevenDaysFormattedDates(): ArrayList<String> {
 
     return formattedDateList
 }
+

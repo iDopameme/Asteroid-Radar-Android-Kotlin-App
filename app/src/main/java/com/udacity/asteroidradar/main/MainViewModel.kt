@@ -1,6 +1,7 @@
 package com.udacity.asteroidradar.main
 
 import android.content.ContentValues.TAG
+import android.graphics.Picture
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -8,19 +9,22 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.Constants
-import com.udacity.asteroidradar.ImageOfDay
 import com.udacity.asteroidradar.api.RetrofitInstance
 import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
+import com.udacity.asteroidradar.database.PictureOfDay
+import com.udacity.asteroidradar.repository.AsteroidRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 
-class MainViewModel : ViewModel() {
+class MainViewModel(private val repository: AsteroidRepository) : ViewModel() {
     private val _asteroids: MutableLiveData<List<Asteroid>> = MutableLiveData()
     val asteroids: LiveData<List<Asteroid>>
         get() = _asteroids
 
-    private val _asteroidImage: MutableLiveData<ImageOfDay> = MutableLiveData()
-    val asteroidImage: LiveData<ImageOfDay>
+    private val _asteroidImage: MutableLiveData<PictureOfDay> = MutableLiveData()
+    val asteroidImage: LiveData<PictureOfDay>
         get() = _asteroidImage
 
     // Handles navigation to the selected asteroid
@@ -40,12 +44,13 @@ class MainViewModel : ViewModel() {
         loadAsteroids()
     }
 
-    fun loadAsteroids() {
+    private fun loadAsteroids() {
         viewModelScope.launch {
             _errorMessage.value = null
             _isLoading.value = true
             try {
-                val queuedAsteroid = RetrofitInstance.api.requestNeoWs("2022-01-24",
+                // TODO startDate value cannot be manual input. Must be corrected soon.
+                val queuedAsteroid = RetrofitInstance.api.requestNeoWs("2022-01-26",
                     Constants.API_KEY)
                 val queuedImageOfDay = RetrofitInstance.imageApi.requestImageOfDay(Constants.API_KEY)
 
@@ -53,7 +58,14 @@ class MainViewModel : ViewModel() {
                 Log.i(TAG, "Got Image of Day: $queuedImageOfDay")
 
                 val asteroidJSON = JSONObject(queuedAsteroid)
-                _asteroids.value = parseAsteroidsJsonResult(asteroidJSON)
+                val asteroids = parseAsteroidsJsonResult(asteroidJSON)
+                _asteroids.value = asteroids
+
+                for (asteroid in asteroids) {
+                    withContext(Dispatchers.IO) {
+                        repository.saveAsteroid(asteroid)
+                    }
+                }
 
                 _asteroidImage.value = queuedImageOfDay
 
@@ -65,6 +77,10 @@ class MainViewModel : ViewModel() {
             }
         }
     }
+
+//    private suspend fun insert(asteroid: Asteroid) {
+//        withContext(Dispatchers)
+//    }
 
     fun displayAsteroidDetails(asteroid: Asteroid) {
         _navigateToSelectedAsteroid.value = asteroid

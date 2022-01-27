@@ -32,8 +32,3 @@ data class Asteroid(
 
     @ColumnInfo(name = "is_potentially_hazardous")
     val isPotentiallyHazardous: Boolean) : Parcelable
-
-@Parcelize
-data class ImageOfDay(val url: String, val media_type: String, val title: String) : Parcelable
-
-

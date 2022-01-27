@@ -1,7 +1,7 @@
 package com.udacity.asteroidradar.api
 
 import com.udacity.asteroidradar.Asteroid
-import com.udacity.asteroidradar.ImageOfDay
+import com.udacity.asteroidradar.database.PictureOfDay
 import org.json.JSONObject
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -13,6 +13,6 @@ interface ApiService {
                              @Query("api_key") apiKey: String): String
 
     @GET("planetary/apod")
-    suspend fun requestImageOfDay(@Query("api_key") apiKey: String) : ImageOfDay
+    suspend fun requestImageOfDay(@Query("api_key") apiKey: String) : PictureOfDay
 
 }

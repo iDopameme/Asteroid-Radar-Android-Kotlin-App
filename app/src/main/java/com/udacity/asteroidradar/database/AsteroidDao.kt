@@ -1,5 +1,6 @@
 package com.udacity.asteroidradar.database
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.udacity.asteroidradar.Asteroid
 
@@ -7,14 +8,15 @@ import com.udacity.asteroidradar.Asteroid
 interface AsteroidDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(asteroid: Asteroid)
+    fun insert(asteroid: Asteroid)
 
     @Query("DELETE FROM asteroid_radar")
-    suspend fun clearAsteroids()
+    fun clearAsteroids()
 
     @Delete
-    suspend fun deleteAsteroid(asteroid: Asteroid)
+    fun deleteAsteroid(asteroid: Asteroid)
 
     @Query("SELECT * FROM asteroid_radar ORDER BY id")
-    fun getAllAsteroids()
+    fun getAllAsteroids(): LiveData<List<Asteroid>>
+
 }
