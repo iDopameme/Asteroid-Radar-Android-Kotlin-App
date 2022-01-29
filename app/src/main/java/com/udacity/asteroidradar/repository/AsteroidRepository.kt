@@ -20,16 +20,5 @@ interface AsteroidRepository {
 
     suspend fun deleteAsteroids()
 
-    suspend fun refreshAsteroids() {
-        withContext(Dispatchers.IO) {
-            val queuedAsteroid = RetrofitInstance.api.requestNeoWs(getCurrentDate(), Constants.API_KEY)
-
-            val asteroidJSON = JSONObject(queuedAsteroid)
-            val asteroids = parseAsteroidsJsonResult(asteroidJSON)
-
-            for (asteroid in asteroids) {
-                saveAsteroid(asteroid)
-            }
-        }
-    }
+    suspend fun refreshAsteroids()
 }

@@ -32,6 +32,11 @@ class MainFragment : Fragment() {
             viewModel.displayAsteroidDetails(it)
         })
 
+        viewModel.isImageLoading.observe(viewLifecycleOwner) { isImageLoading ->
+            Log.i(TAG, "isImageLoading $isImageLoading")
+            binding.imageLoadingWheel.visibility = if (isImageLoading) View.VISIBLE else View.GONE
+        }
+
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             Log.i(TAG, "isLoading $isLoading")
             binding.statusLoadingWheel.visibility = if (isLoading) View.VISIBLE else View.GONE
@@ -43,6 +48,15 @@ class MainFragment : Fragment() {
             } else {
                 binding.loadError.visibility = View.VISIBLE
                 Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        viewModel.imageErrorMessage.observe(viewLifecycleOwner) { imageErrorMessage ->
+            if (imageErrorMessage == null) {
+                binding.imageLoadError.visibility = View.GONE
+            } else {
+                binding.imageLoadError.visibility = View.VISIBLE
+                Toast.makeText(requireContext(), imageErrorMessage, Toast.LENGTH_SHORT).show()
             }
         }
 

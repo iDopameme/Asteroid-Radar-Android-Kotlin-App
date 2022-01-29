@@ -2,8 +2,14 @@ package com.udacity.asteroidradar.repository
 
 import androidx.lifecycle.LiveData
 import com.udacity.asteroidradar.Asteroid
+import com.udacity.asteroidradar.Constants
+import com.udacity.asteroidradar.api.RetrofitInstance
 import com.udacity.asteroidradar.api.getCurrentDate
+import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
 import com.udacity.asteroidradar.database.AsteroidDao
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.json.JSONObject
 
 class Repository : AsteroidRepository {
 
@@ -12,7 +18,7 @@ class Repository : AsteroidRepository {
     }
 
     private val allAsteroids by lazy {
-        asteroidDao.getAllAsteroids()
+        asteroidDao.getAllAsteroids(getCurrentDate())
     }
 
     private val todayAsteroids by lazy {
@@ -20,7 +26,16 @@ class Repository : AsteroidRepository {
     }
 
     override suspend fun refreshAsteroids() {
-        super.refreshAsteroids()
+            withContext(Dispatchers.IO) {
+                val queuedAsteroid = RetrofitInstance.api.requestNeoWs(getCurrentDate(), Constants.API_KEY)
+
+                val asteroidJSON = JSONObject(queuedAsteroid)
+                val asteroids = parseAsteroidsJsonResult(asteroidJSON)
+
+                for (asteroid in asteroids) {
+                    saveAsteroid(asteroid)
+                }
+            }
     }
 
     override fun getSavedAsteroids(): List<Asteroid> {
