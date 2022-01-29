@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.Constants
 import com.udacity.asteroidradar.api.RetrofitInstance
+import com.udacity.asteroidradar.api.getCurrentDate
 import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
 import com.udacity.asteroidradar.database.PictureOfDay
 import com.udacity.asteroidradar.repository.AsteroidRepository
@@ -17,6 +18,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MainViewModel(private val repository: AsteroidRepository) : ViewModel() {
     private val _asteroids: MutableLiveData<List<Asteroid>> = MutableLiveData()
@@ -28,8 +31,8 @@ class MainViewModel(private val repository: AsteroidRepository) : ViewModel() {
         get() = _asteroidImage
 
     // Handles navigation to the selected asteroid
-    private val _navigateToSelectedAsteroid = MutableLiveData<Asteroid>()
-    val navigateToSelectedAsteroid: LiveData<Asteroid>
+    private val _navigateToSelectedAsteroid = MutableLiveData<Asteroid?>()
+    val navigateToSelectedAsteroid: LiveData<Asteroid?>
         get() = _navigateToSelectedAsteroid
 
     private val _isLoading = MutableLiveData(false)
@@ -41,27 +44,59 @@ class MainViewModel(private val repository: AsteroidRepository) : ViewModel() {
         get() = _errorMessage
 
     init {
-        loadAsteroids()
+        viewModelScope.launch {
+            //verifyTodayLocalAsteroid()
+            loadAsteroids()
+        }
     }
 
-    private fun loadAsteroids() {
+    // TODO Implement function that checks local database first for asteroids before requesting for a new set.
+
+    private suspend fun loadAsteroids() {
+        _asteroids.value = loadLocalAsteroids()
+    }
+
+    suspend fun loadLocalAsteroids(): List<Asteroid> {
+        val localAsteroids: List<Asteroid>
+        withContext(Dispatchers.IO) {
+            localAsteroids = repository.getSavedAsteroids()
+        }
+        return localAsteroids
+    }
+
+    suspend fun verifyTodayLocalAsteroid() {
+        withContext(Dispatchers.IO) {
+            val currentAsteroidCheck = repository.getTodaysAsteroid()
+
+            println("Checking if today's asteroid is in local: $currentAsteroidCheck")
+
+            //loadAsteroids()
+        }
+    }
+
+    fun loadAPIAsteroids() {
         viewModelScope.launch {
             _errorMessage.value = null
             _isLoading.value = true
+
+            _asteroids.value = repository.getSavedAsteroids()
             try {
-                // TODO startDate value cannot be manual input. Must be corrected soon.
-                val queuedAsteroid = RetrofitInstance.api.requestNeoWs("2022-01-26",
-                    Constants.API_KEY)
+                val asteroidList: ArrayList<Asteroid>
+
+                val queuedAsteroid = RetrofitInstance.api.requestNeoWs(getCurrentDate(), Constants.API_KEY)
                 val queuedImageOfDay = RetrofitInstance.imageApi.requestImageOfDay(Constants.API_KEY)
 
                 Log.i(TAG, "Got asteroids: $queuedAsteroid")
                 Log.i(TAG, "Got Image of Day: $queuedImageOfDay")
 
                 val asteroidJSON = JSONObject(queuedAsteroid)
-                val asteroids = parseAsteroidsJsonResult(asteroidJSON)
-                _asteroids.value = asteroids
+                asteroidList = parseAsteroidsJsonResult(asteroidJSON)
 
-                for (asteroid in asteroids) {
+
+
+                _asteroids.value = asteroidList
+
+                for (asteroid in asteroidList) {
                     withContext(Dispatchers.IO) {
                         repository.saveAsteroid(asteroid)
                     }
@@ -78,9 +113,6 @@ class MainViewModel(private val repository: AsteroidRepository) : ViewModel() {
         }
     }
 
-//    private suspend fun insert(asteroid: Asteroid) {
-//        withContext(Dispatchers)
-//    }
 
     fun displayAsteroidDetails(asteroid: Asteroid) {
         _navigateToSelectedAsteroid.value = asteroid

@@ -22,4 +22,5 @@
     <string name="asteroid_name_placeholder">(2021) UZ77</string>
     <string name="asteroid_date_placeholder">2022-10-02</string>
     <string name="hazard_image_content_description">hazard Image</string>
+    <string name="error_message">ERROR!! Unable to load Asteroids</string>
 </resources>

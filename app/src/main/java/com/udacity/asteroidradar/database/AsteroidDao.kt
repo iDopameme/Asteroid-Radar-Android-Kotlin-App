@@ -16,7 +16,9 @@ interface AsteroidDao {
     @Delete
     fun deleteAsteroid(asteroid: Asteroid)
 
-    @Query("SELECT * FROM asteroid_radar ORDER BY id")
-    fun getAllAsteroids(): LiveData<List<Asteroid>>
+    @Query("SELECT * FROM asteroid_radar ORDER BY close_approach_date ASC")
+    fun getAllAsteroids(): List<Asteroid>
 
+    @Query("SELECT close_approach_date FROM asteroid_radar WHERE close_approach_date = :today")
+    fun getTodaysAsteroids(today: String): String
 }

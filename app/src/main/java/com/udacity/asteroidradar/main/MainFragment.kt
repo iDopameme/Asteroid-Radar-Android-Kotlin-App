@@ -4,6 +4,7 @@ import android.content.ContentValues.TAG
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -34,6 +35,15 @@ class MainFragment : Fragment() {
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             Log.i(TAG, "isLoading $isLoading")
             binding.statusLoadingWheel.visibility = if (isLoading) View.VISIBLE else View.GONE
+        }
+        
+        viewModel.errorMessage.observe(viewLifecycleOwner) { errorMessage ->
+            if (errorMessage == null) {
+                binding.loadError.visibility = View.GONE
+            } else {
+                binding.loadError.visibility = View.VISIBLE
+                Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
+            }
         }
 
         viewModel.navigateToSelectedAsteroid.observe(viewLifecycleOwner) {
