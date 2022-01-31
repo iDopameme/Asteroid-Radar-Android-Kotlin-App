@@ -22,9 +22,12 @@ interface AsteroidDao {
     @Delete
     fun deleteAsteroid(asteroid: Asteroid)
 
-    @Query("SELECT * FROM asteroid_radar WHERE close_approach_date >= :today ORDER BY close_approach_date ASC ")
-    fun getAllAsteroids(today: String): List<Asteroid>
+    @Query("SELECT * FROM asteroid_radar ORDER BY close_approach_date ASC ")
+    fun getAllAsteroids(): List<Asteroid>
 
-    @Query("SELECT close_approach_date FROM asteroid_radar WHERE close_approach_date = :today")
-    fun getTodaysAsteroids(today: String): String
+    @Query("SELECT * FROM asteroid_radar WHERE close_approach_date = :today")
+    fun getTodaysAsteroids(today: String): List<Asteroid>
+
+    @Query("SELECT * FROM asteroid_radar WHERE close_approach_date >= :today ORDER BY close_approach_date ASC")
+    fun getWeekAsteroids(today: String): List<Asteroid>
 }

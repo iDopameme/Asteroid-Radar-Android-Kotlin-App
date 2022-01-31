@@ -12,9 +12,11 @@ import org.json.JSONObject
 
 interface AsteroidRepository {
 
-    fun getSavedAsteroids(): List<Asteroid>
+    fun getAllAsteroid(): List<Asteroid>
 
-    fun getTodaysAsteroid(): String
+    fun getTodaysAsteroid(): List<Asteroid>
+
+    fun getWeekAsteroid(): List<Asteroid>
 
     suspend fun saveAsteroid(asteroid: Asteroid)
 

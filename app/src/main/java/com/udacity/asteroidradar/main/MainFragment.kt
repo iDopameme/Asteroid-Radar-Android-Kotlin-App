@@ -79,6 +79,20 @@ class MainFragment : Fragment() {
 
     // Options menu to determine what happens during menu item select
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return true
+        return when (item.itemId) {
+            R.id.show_week_menu -> {
+                viewModel.setWeeklyAsteroidMenu()
+                true
+            }
+            R.id.show_today_menu -> {
+                viewModel.setTodayAsteroidMenu()
+                true
+            }
+            R.id.show_saved_menu -> {
+                viewModel.setAllAsteroidMenu()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 }

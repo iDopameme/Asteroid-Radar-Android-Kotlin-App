@@ -18,11 +18,15 @@ class Repository : AsteroidRepository {
     }
 
     private val allAsteroids by lazy {
-        asteroidDao.getAllAsteroids(getCurrentDate())
+        asteroidDao.getAllAsteroids()
     }
 
     private val todayAsteroids by lazy {
         asteroidDao.getTodaysAsteroids(getCurrentDate())
+    }
+
+    private val weeklyAsteroids by lazy {
+        asteroidDao.getWeekAsteroids(getCurrentDate())
     }
 
     override suspend fun refreshAsteroids() {
@@ -38,12 +42,16 @@ class Repository : AsteroidRepository {
             }
     }
 
-    override fun getSavedAsteroids(): List<Asteroid> {
+    override fun getAllAsteroid(): List<Asteroid> {
         return allAsteroids
     }
 
-    override fun getTodaysAsteroid(): String {
+    override fun getTodaysAsteroid(): List<Asteroid> {
         return todayAsteroids
+    }
+
+    override fun getWeekAsteroid(): List<Asteroid> {
+        return weeklyAsteroids
     }
 
     override suspend fun saveAsteroid(asteroid: Asteroid) {

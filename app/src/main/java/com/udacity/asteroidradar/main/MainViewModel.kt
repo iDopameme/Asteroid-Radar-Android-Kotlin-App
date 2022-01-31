@@ -22,6 +22,12 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class MainViewModel(private val repository: AsteroidRepository) : ViewModel() {
+
+    private lateinit var weeklyAsteroids: List<Asteroid>
+    private lateinit var todayAsteroids: List<Asteroid>
+    private lateinit var allAsteroids: List<Asteroid>
+
+
     private val _asteroids: MutableLiveData<List<Asteroid>> = MutableLiveData()
     val asteroids: LiveData<List<Asteroid>>
         get() = _asteroids
@@ -53,25 +59,14 @@ class MainViewModel(private val repository: AsteroidRepository) : ViewModel() {
 
     init {
         viewModelScope.launch {
-            //verifyTodayLocalAsteroid()
             loadImageOfDay()
-            loadAsteroids()
+            withContext(Dispatchers.IO) {
+                allAsteroids = getAllAsteroid()
+                weeklyAsteroids = getWeeklyAsteroid()
+                todayAsteroids = getTodaysAsteroid()
+            }
+            setWeeklyAsteroidMenu()
         }
-    }
-
-    // TODO Use Work Manager to fetch new asteroids from API *ONLY* use database to fetch local
-    //  queries. Check if local database exists
-
-    private suspend fun loadAsteroids() {
-        _asteroids.value = loadLocalAsteroids()
-    }
-
-    private suspend fun loadLocalAsteroids(): List<Asteroid> {
-        val localAsteroids: List<Asteroid>
-        withContext(Dispatchers.IO) {
-            localAsteroids = repository.getSavedAsteroids()
-        }
-        return localAsteroids
     }
 
     private fun loadImageOfDay() {
@@ -91,6 +86,32 @@ class MainViewModel(private val repository: AsteroidRepository) : ViewModel() {
         }
     }
 
+    private fun getAllAsteroid(): List<Asteroid> {
+        return repository.getAllAsteroid()
+    }
+
+    private fun getTodaysAsteroid(): List<Asteroid> {
+        return repository.getTodaysAsteroid()
+    }
+
+    private fun getWeeklyAsteroid(): List<Asteroid> {
+        return repository.getWeekAsteroid()
+    }
+
+    fun setAllAsteroidMenu() {
+        _asteroids.value = allAsteroids
+    }
+
+    fun setTodayAsteroidMenu() {
+        _asteroids.value = todayAsteroids
+    }
+
+    fun setWeeklyAsteroidMenu() {
+        _asteroids.value = weeklyAsteroids
+    }
+
+
+
     suspend fun verifyTodayLocalAsteroid() {
         withContext(Dispatchers.IO) {
             val currentAsteroidCheck = repository.getTodaysAsteroid()
@@ -104,7 +125,7 @@ class MainViewModel(private val repository: AsteroidRepository) : ViewModel() {
             _errorMessage.value = null
             _isLoading.value = true
 
-            _asteroids.value = repository.getSavedAsteroids()
+            _asteroids.value = repository.getAllAsteroid()
             try {
                 val asteroidList: ArrayList<Asteroid>
                 val queuedAsteroid = RetrofitInstance.api.requestNeoWs(getCurrentDate(), Constants.API_KEY)

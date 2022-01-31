@@ -23,4 +23,7 @@
     <string name="asteroid_date_placeholder">2022-10-02</string>
     <string name="hazard_image_content_description">hazard Image</string>
     <string name="error_message">ERROR!! Unable to load Asteroids</string>
+    <string name="help_button">Help Button</string>
+    <string name="hazard_status_icon">Potentially Hazardous Asteroid</string>
+    <string name="non_hazard_status_icon">Non Hazardous Asteroid</string>
 </resources>

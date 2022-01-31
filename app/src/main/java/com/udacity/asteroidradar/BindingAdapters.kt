@@ -1,5 +1,6 @@
 package com.udacity.asteroidradar
 
+import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
@@ -22,12 +23,38 @@ fun bindAsteroidStatusImage(imageView: ImageView, isHazardous: Boolean) {
     }
 }
 
+@BindingAdapter("statusContentDescription")
+fun bindStatusContentDescription(imageView: ImageView, isHazardous: Boolean) {
+    val context = imageView.context
+    if (isHazardous) {
+        imageView.contentDescription = String.format(context.getString(
+            R.string.hazard_status_icon
+        ))
+    } else {
+        imageView.contentDescription = String.format(context.getString(
+            R.string.non_hazard_status_icon
+        ))
+    }
+}
+
 @BindingAdapter("asteroidStatusImage")
 fun bindDetailsStatusImage(imageView: ImageView, isHazardous: Boolean) {
     if (isHazardous) {
         imageView.setImageResource(R.drawable.asteroid_hazardous)
     } else {
         imageView.setImageResource(R.drawable.asteroid_safe)
+    }
+}
+
+@BindingAdapter("asteroidContentDescription")
+fun bindContentDescription(imageView: ImageView, isHazardous: Boolean) {
+    val context = imageView.context
+    if (isHazardous) {
+        imageView.contentDescription = String.format(context.getString(
+            R.string.potentially_hazardous_asteroid_image))
+    } else {
+        imageView.contentDescription = String.format(context.getString(
+            R.string.not_hazardous_asteroid_image))
     }
 }
 
@@ -51,5 +78,9 @@ fun bindTextViewToDisplayVelocity(textView: TextView, number: Double) {
 
 @BindingAdapter("imageUrl")
 fun bindImageOfDayImage(imageView: ImageView, url: String?) {
-    Picasso.get().load(url).into(imageView)
+    Picasso.get()
+        .load(url)
+        .placeholder(R.drawable.image_loading_placeholder)
+        .error(R.drawable.broken_image_placeholder)
+        .into(imageView)
 }

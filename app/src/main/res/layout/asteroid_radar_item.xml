@@ -46,11 +46,11 @@
             android:layout_marginStart="363dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="24dp"
-            android:contentDescription="@string/hazard_image_content_description"
             android:foregroundGravity="right"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:statusContentDescription="@{asteroid.potentiallyHazardous}"
             app:statusIcon="@{asteroid.potentiallyHazardous}" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
